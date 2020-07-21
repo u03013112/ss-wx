@@ -27,7 +27,7 @@ services:
     depends_on: 
       - mysql
     tty: true
-    command: tester
+    command: /usr/local/bin/ss-tester tester
     networks:
       - dev
     logging:
@@ -42,7 +42,7 @@ services:
     depends_on: 
       - mysql
     tty: true
-    command: spider
+    command: /usr/local/bin/ss-tester spider
     networks:
       - dev
     logging:
