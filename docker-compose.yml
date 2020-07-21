@@ -37,7 +37,7 @@ services:
         max-file: "1"
   spider:
     image: u03013112/ss-tester
-    container_name: 'tester'
+    container_name: 'spider'
     # restart: always
     depends_on: 
       - mysql
