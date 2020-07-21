@@ -1,0 +1,159 @@
+version: '2'
+networks: 
+  dev: 
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.100.0/24
+services: 
+  gateway:
+    image: u03013112/ss-gateway
+    container_name: 'gateway'
+    tty: true
+    # restart: always
+    ports:
+      - 18021:8081
+    networks:
+      - dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+  config:
+    image: u03013112/ss-config
+    container_name: 'config'
+    # restart: always
+    depends_on: 
+      - mysql
+    tty: true
+    networks:
+      - dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+  user:
+    image: u03013112/ss-user
+    container_name: 'user'
+    # restart: always
+    depends_on: 
+      - mysql
+    tty: true
+    networks:
+      - dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+  ios:
+    image: u03013112/ss-ios
+    container_name: 'ios'
+    # restart: always
+    depends_on: 
+      - mysql
+    tty: true
+    environment:
+      - SANDBOX=TRUE
+    networks:
+      - dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+  android:
+    image: u03013112/ss-android
+    container_name: 'android'
+    # restart: always
+    depends_on: 
+      - mysql
+    tty: true
+    environment:
+      - SANDBOX=TRUE
+    networks:
+      - dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+  tester:
+    image: u03013112/ss-tester
+    container_name: 'tester'
+    # restart: always
+    depends_on: 
+      - mysql
+    tty: true
+    environment:
+      - SANDBOX=TRUE
+    networks:
+      - dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+  
+  mysql:
+    image: mysql:5
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci
+    volumes:
+      - .data/mysql:/var/lib/mysql
+      - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+    container_name: 'mysql'
+    environment:
+      - MYSQL_ROOT_PASSWORD=!@#sspaas@U0
+      - MYSQL_DATABASE=ss_main
+    # restart: always
+    ports:
+      - 127.0.0.1:3306:3306
+    networks: 
+      - dev
+  nginx:
+    image: nginx:alpine
+    container_name: 'ng4ss'
+    # restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d
+      - ./htmls:/www/htmls
+    ports:
+      - 18022:443
+    networks:
+    - dev
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "1"
+
+  # selenium-hub:
+  #   image: selenium/hub:3.141.59-yttrium
+  #   # restart: always
+  #   networks: 
+  #     - dev
+  # firefox:
+  #   image: selenium/node-firefox:3.141.59-yttrium
+  #   # restart: always
+  #   volumes:
+  #     - /dev/shm:/dev/shm
+  #   depends_on:
+  #     - selenium-hub
+  #   environment:
+  #     - HUB_HOST=selenium-hub
+  #     - HUB_PORT=4444
+  #   networks: 
+  #     - dev
+  #   mem_limit: 200M
+  # jms:
+  #   image: u03013112/jms
+  #   # restart: always
+  #   container_name: jms
+  #   depends_on:
+  #     - selenium-hub
+  #   # ports:
+  #   #   - "28000:28000"
+  #   networks: 
+  #     - dev
